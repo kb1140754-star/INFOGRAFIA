@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De los Rectángulos al Área Exacta</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Anton&family=Poppins:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+<style>
+:root{
+  --cream:#f2e4c4;
+  --cream-2:#ece0bd;
+  --paper:#fbf3de;
+  --ink:#3a2617;
+  --brown:#6b4226;
+  --brown-2:#8a5a34;
+  --mustard:#e3a72e;
+  --mustard-dark:#c98a1f;
+  --teal:#3f9d92;
+  --teal-dark:#2c766d;
+  --terracotta:#c1502e;
+  --cream-white:#fffaf0;
+  --disp:'Bungee', cursive;
+  --eyebrow:'Anton', sans-serif;
+  --body:'Poppins', sans-serif;
+  --mono:'Space Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0; padding:0;}
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:var(--body);
+  line-height:1.55;
+  position:relative;
+}
+.halftone{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: radial-gradient(circle, rgba(58,38,23,0.10) 1.4px, transparent 1.6px);
+  background-size: 11px 11px;
+  opacity:.55;
+}
+.wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:0 20px 70px;}
+
+/* ---------------- MASTHEAD ---------------- */
+.masthead{
+  background:var(--brown);
+  color:var(--paper);
+  padding:34px 24px 30px;
+  text-align:center;
+  border-bottom:8px solid var(--mustard);
+  position:relative;
+  z-index:1;
+  box-shadow:0 10px 0 -2px rgba(0,0,0,0.06);
+}
+.masthead-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--eyebrow); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+  background:var(--mustard); color:var(--ink);
+  padding:6px 16px; border-radius:100px; margin-bottom:16px;
+  border:2px solid var(--ink);
+}
+.masthead-title{
+  font-family:var(--disp); font-size:clamp(28px,5.4vw,48px); line-height:1.15; margin:0 0 10px;
+  text-shadow:3px 3px 0 var(--ink);
+  color:var(--cream-white);
+}
+.masthead-sub{
+  font-family:var(--eyebrow); font-size:14px; letter-spacing:.05em; color:var(--mustard);
+  margin:0 0 18px; text-transform:uppercase;
+}
+.masthead-ribbon{
+  display:inline-block; background:var(--teal); color:var(--paper);
+  font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+  padding:8px 18px; border-radius:8px; border:2px solid var(--ink);
+  box-shadow:4px 4px 0 var(--ink);
+}
+
+/* ---------------- SECTION TITLES ---------------- */
+.section-title{
+  font-family:var(--disp); font-size:clamp(20px,3vw,28px); color:var(--brown);
+  text-align:center; margin:52px 0 8px; position:relative;
+}
+.section-kicker{
+  text-align:center; font-family:var(--eyebrow); font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--terracotta); margin-bottom:6px;
+}
+.wavy-divider{
+  height:22px; margin:0 auto 30px; max-width:220px;
+  background-image: radial-gradient(circle at 10px 0, transparent 9px, var(--mustard) 10px);
+  background-size:20px 20px; background-repeat:repeat-x;
+}
+
+/* ---------------- INSTRUMENT PANEL ---------------- */
+.instrument{
+  margin-top:-26px;
+  background:var(--brown);
+  border-radius:22px;
+  border:6px solid var(--ink);
+  padding:14px;
+  box-shadow:8px 8px 0 rgba(58,38,23,0.35);
+  position:relative;
+}
+.instrument::before, .instrument::after{
+  content:''; position:absolute; top:-9px; width:16px; height:16px; border-radius:50%;
+  background:var(--mustard); border:3px solid var(--ink);
+}
+.instrument::before{left:22px;}
+.instrument::after{right:22px;}
+.instrument-screen{
+  background:var(--paper); border-radius:14px; padding:16px 16px 18px; border:3px solid var(--ink);
+}
+.instrument-head{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  margin-bottom:12px; padding-bottom:10px; border-bottom:2px dashed var(--brown-2);
+}
+.instrument-head h2{
+  font-family:var(--eyebrow); font-size:15px; letter-spacing:.04em; margin:0; color:var(--ink);
+  text-transform:uppercase; display:flex; align-items:center; gap:8px;
+}
+.instrument-head h2 i{color:var(--terracotta);}
+.audio-btn{
+  font-family:var(--mono); font-size:10.5px; background:var(--mustard); color:var(--ink);
+  border:2px solid var(--ink); border-radius:100px; padding:6px 12px; cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+}
+.audio-btn.off{background:var(--cream-2); color:var(--brown-2);}
+
+.controls-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px;}
+@media (max-width:680px){ .controls-row{grid-template-columns:1fr;} }
+.field label{display:block; font-family:var(--eyebrow); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--brown-2); margin-bottom:4px;}
+.field select, .field input{
+  width:100%; background:var(--cream-white); border:2px solid var(--ink); border-radius:8px;
+  padding:7px 8px; font-family:var(--body); font-size:12px; color:var(--ink);
+}
+.limits-pair{display:grid; grid-template-columns:1fr 1fr; gap:6px;}
+
+.canvas-frame{
+  background:var(--ink); border-radius:10px; border:3px solid var(--ink); padding:6px; margin-bottom:12px;
+}
+.canvas-inner{position:relative; height:190px; background:var(--cream-white); border-radius:6px; overflow:hidden;}
+canvas{position:absolute; inset:0; width:100%; height:100%;}
+
+.n-row{
+  display:flex; align-items:center; gap:10px; background:var(--cream-2); border:2px solid var(--ink);
+  border-radius:10px; padding:9px 12px; margin-bottom:12px;
+}
+.n-row span.lbl{font-family:var(--eyebrow); font-size:10.5px; text-transform:uppercase; color:var(--brown-2); flex-shrink:0;}
+.n-row input[type=range]{flex:1; accent-color:var(--terracotta);}
+.n-badge{font-family:var(--mono); font-weight:700; font-size:12px; background:var(--terracotta); color:var(--cream-white); padding:4px 10px; border-radius:6px; flex-shrink:0;}
+
+.readouts{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+@media (max-width:520px){ .readouts{grid-template-columns:1fr;} }
+.readout{background:var(--cream-white); border:2px solid var(--ink); border-radius:9px; padding:8px 10px; text-align:center; cursor:pointer; position:relative; transition:transform .15s ease, box-shadow .15s ease;}
+.readout:hover{ transform:translateY(-2px); box-shadow:3px 3px 0 rgba(58,38,23,0.28); }
+.readout .rl{font-family:var(--eyebrow); font-size:8.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--brown-2); display:flex; align-items:center; justify-content:center; gap:4px;}
+.readout .rl i{font-size:9px; color:var(--terracotta);}
+.readout .rv{font-family:var(--mono); font-weight:700; font-size:14px; margin-top:3px;}
+.readout.a .rv{color:var(--teal-dark);}
+.readout.b .rv{color:var(--terracotta);}
+
+/* ---------------- STATION POSTCARDS ---------------- */
+.stations-grid{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+@media (max-width:680px){ .stations-grid{grid-template-columns:1fr;} }
+
+.postcard{
+  background:var(--paper); border:3px solid var(--ink); border-radius:16px; padding:20px 18px 22px;
+  text-align:center; cursor:pointer; position:relative;
+  box-shadow:7px 7px 0 rgba(58,38,23,0.28);
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.postcard:hover{ transform:translate(-3px,-3px); box-shadow:10px 10px 0 rgba(58,38,23,0.32); }
+.postcard-stamp{
+  position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+  font-family:var(--eyebrow); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--cream-white); padding:5px 14px; border-radius:100px; border:2px solid var(--ink);
+}
+.postcard-photo{
+  width:128px; height:128px; border-radius:50%; margin:14px auto 14px; overflow:hidden;
+  border:5px solid var(--cream-white); box-shadow:0 0 0 3px var(--ink);
+  background:var(--cream-2); display:flex; align-items:center; justify-content:center;
+}
+.postcard-photo img{width:100%; height:100%; object-fit:cover;}
+.postcard h3{font-family:var(--disp); font-size:15.5px; color:var(--ink); margin:0 0 6px; line-height:1.3;}
+.postcard p{font-size:12px; color:var(--brown-2); margin:0 0 10px;}
+.postcard .who{font-family:var(--mono); font-size:10.5px; color:var(--terracotta);}
+.postcard-cta{
+  display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-family:var(--eyebrow);
+  font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--paper);
+  background:var(--ink); padding:6px 14px; border-radius:100px;
+}
+
+/* ---------------- REFERENCES ---------------- */
+.index-card{
+  background:var(--cream-white); border:3px solid var(--ink); border-radius:12px; padding:22px 24px;
+  box-shadow:7px 7px 0 rgba(58,38,23,0.22);
+  position:relative;
+}
+.index-card::before{
+  content:'REF'; position:absolute; top:14px; right:18px; font-family:var(--eyebrow); font-size:11px;
+  color:var(--cream-2); letter-spacing:.1em; border:2px solid var(--cream-2); padding:2px 8px; border-radius:4px;
+}
+.ref-item{
+  font-family:var(--mono); font-size:12.5px; color:var(--ink); padding:9px 0; border-bottom:1px dashed var(--cream-2);
+  display:flex; gap:10px;
+}
+.ref-item:last-child{border-bottom:0;}
+.ref-item .num{color:var(--terracotta); font-weight:700; flex-shrink:0;}
+.ref-item em{font-style:italic; color:var(--brown-2);}
+
+/* ---------------- FOOTER ---------------- */
+.retro-footer{
+  text-align:center; margin-top:50px; padding-top:22px; border-top:3px dashed var(--brown-2);
+  font-family:var(--mono); font-size:11px; color:var(--brown-2);
+}
+
+/* ---------------- MODAL ---------------- */
+.modal-overlay{
+  position:fixed; inset:0; z-index:60; background:rgba(58,38,23,0.72); backdrop-filter:blur(3px);
+  display:none; align-items:center; justify-content:center; padding:16px; overflow-y:auto;
+}
+.modal-overlay.open{display:flex;}
+.modal-box{
+  background:var(--paper); border:4px solid var(--ink); border-radius:18px; max-width:640px; width:100%;
+  padding:24px; position:relative; box-shadow:10px 10px 0 rgba(0,0,0,0.3); max-height:88vh; display:flex; flex-direction:column;
+}
+.modal-close{
+  position:absolute; top:14px; right:14px; width:30px; height:30px; border-radius:50%; background:var(--terracotta);
+  color:var(--cream-white); border:2px solid var(--ink); cursor:pointer; font-size:14px;
+}
+.modal-head{display:flex; align-items:center; gap:12px; padding-bottom:12px; border-bottom:2px dashed var(--brown-2); margin-bottom:14px;}
+.modal-icon{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--cream-white); font-size:17px; flex-shrink:0; border:2px solid var(--ink);}
+.modal-sub{font-family:var(--eyebrow); font-size:9.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--brown-2);}
+.modal-title{font-family:var(--disp); font-size:15px; color:var(--ink); margin:2px 0 0;}
+.modal-body{overflow-y:auto; padding-right:4px;}
+.avatar-box{
+  display:flex; gap:14px; align-items:center; background:var(--cream-white); border:2px solid var(--ink);
+  border-radius:12px; padding:14px; margin-bottom:14px; flex-wrap:wrap;
+}
+.avatar-box img{width:96px; height:96px; border-radius:50%; object-fit:cover; border:4px solid var(--mustard); flex-shrink:0;}
+.avatar-name{font-family:var(--eyebrow); font-size:11.5px; letter-spacing:.04em; color:var(--terracotta); text-transform:uppercase;}
+.avatar-quote{font-size:12.5px; font-style:italic; color:var(--brown-2); margin-top:5px;}
+.math-box{background:var(--cream-2); border:2px solid var(--brown-2); border-radius:12px; padding:14px 16px; font-size:13px;}
+.math-box .formula-line{text-align:center; margin:10px 0; padding:9px; background:var(--cream-white); border-radius:8px; border:1px solid var(--brown-2); font-family:var(--mono); font-size:13px; overflow-x:auto;}
+.tip-box{display:flex; gap:10px; align-items:flex-start; background:var(--cream-white); border:2px dashed var(--teal-dark); border-radius:10px; padding:11px 13px; margin-top:12px;}
+.tip-box i{color:var(--teal-dark); margin-top:2px;}
+.tip-box p{font-size:11px; color:var(--brown-2); margin:0;}
+.modal-footer-btn{margin-top:14px; padding-top:12px; border-top:2px dashed var(--brown-2); text-align:right;}
+.modal-footer-btn button{
+  background:var(--ink); color:var(--paper); border:none; border-radius:100px; padding:9px 18px;
+  font-family:var(--eyebrow); font-size:11px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer;
+}
+
+/* ---------------- CALC EXPLANATION LIVE BOX ---------------- */
+.calc-live-box{
+  background:var(--cream-2); border:2px dashed var(--brown-2); border-radius:10px; padding:11px 13px; margin-top:10px;
+  font-family:var(--mono); font-size:12px; color:var(--ink); line-height:1.7;
+}
+.calc-live-box .cl-label{font-family:var(--eyebrow); font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--terracotta); margin-bottom:6px; display:block;}
+
+/* ---------------- TEACHER WIDGET ---------------- */
+.teacher-widget{
+  position:fixed; left:18px; bottom:18px; z-index:55; display:flex; align-items:flex-end; gap:0;
+}
+.teacher-avatar-btn{
+  width:120px; height:120px; border-radius:50%; border:3px solid var(--ink); cursor:pointer;
+  background:var(--mustard); box-shadow:5px 5px 0 rgba(58,38,23,0.3); overflow:hidden;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; padding:0;
+  transition:transform .15s ease;
+}
+.teacher-avatar-btn:hover{ transform:scale(1.06) rotate(-3deg); }
+.teacher-avatar-btn img{width:100%; height:100%; object-fit:cover; display:block;}
+.teacher-avatar-btn i{font-size:22px; color:var(--ink);}
+.teacher-bubble{
+  position:absolute; left:130px; bottom:0; width:250px; background:var(--cream-white); border:3px solid var(--ink);
+  border-radius:14px 14px 14px 4px; padding:13px 15px; box-shadow:6px 6px 0 rgba(58,38,23,0.28);
+  display:none; opacity:0; transform:translateY(8px); transition:opacity .2s ease, transform .2s ease;
+}
+.teacher-bubble.open{display:block;}
+.teacher-bubble.show{opacity:1; transform:translateY(0);}
+.teacher-bubble-name{font-family:var(--eyebrow); font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--terracotta); margin-bottom:5px;}
+.teacher-bubble-text{font-size:12px; color:var(--ink); line-height:1.45;}
+.teacher-bubble-next{
+  margin-top:9px; font-family:var(--eyebrow); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--brown-2); cursor:pointer; display:inline-flex; align-items:center; gap:5px;
+}
+.teacher-bubble-next:hover{color:var(--terracotta);}
+@media (max-width:520px){
+  .teacher-widget{left:12px; bottom:12px;}
+  .teacher-avatar-btn{width:50px; height:50px;}
+  .teacher-bubble{left:58px; width:200px; padding:11px 13px;}
+}
+
+/* ---------------- TOAST ---------------- */
+.toast{
+  position:fixed; bottom:20px; right:20px; z-index:70; background:var(--ink); color:var(--paper);
+  border:2px solid var(--mustard); border-radius:12px; padding:13px 16px; display:flex; gap:10px; max-width:320px;
+  transform:translateY(30px); opacity:0; pointer-events:none; transition:all .3s ease;
+}
+.toast.show{transform:translateY(0); opacity:1; pointer-events:auto;}
+.toast i{color:var(--mustard); margin-top:2px;}
+.toast .tt{font-family:var(--eyebrow); font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:var(--mustard);}
+.toast .tb{font-size:11.5px; color:var(--cream-2); margin-top:3px;}
+</style>
+</head>
+<body>
+<div class="halftone"></div>
+
+<header class="masthead">
+  <div class="masthead-badge"><i class="fa-solid fa-compass"></i>&nbsp; Cálculo Integral · Sakbe Contreras</div>
+  <h1 class="masthead-title">DE LOS RECTÁNGULOS<br>AL ÁREA EXACTA</h1>
+  <div class="masthead-ribbon">Riemann · Integral Definida · Propiedades · Teorema Fundamental</div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ INSTRUMENTO / SIMULADOR ============ -->
+  <section class="instrument">
+    <div class="instrument-screen">
+      <div class="instrument-head">
+        <h2><i class="fa-solid fa-gauge-high"></i> Laboratorio de Sumas de Riemann</h2>
+        <button onclick="toggleAudio()" id="btn-audio-state" class="audio-btn">
+          <i class="fa-solid fa-volume-high"></i> <span id="audio-lbl-text">Audio ON</span>
+        </button>
+      </div>
+
+      <div class="controls-row">
+        <div class="field">
+          <label>Función f(x)</label>
+          <select id="func-select" onchange="updateSimulation()">
+            <option value="parabola">f(x) = −0.5x² + 3x + 1</option>
+            <option value="sinusoidal">f(x) = sen(x) + 1.5</option>
+            <option value="cubic">f(x) = 0.1x³ − 0.6x² + 1.2x + 1</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Punto muestra (cᵢ)</label>
+          <select id="sum-type-select" onchange="updateSimulation()">
+            <option value="left">Extremo izquierdo</option>
+            <option value="right">Extremo derecho</option>
+            <option value="mid">Punto medio</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Intervalo [a, b]</label>
+          <div class="limits-pair">
+            <input id="limit-a" type="number" step="0.5" value="0.5" onchange="updateSimulation()">
+            <input id="limit-b" type="number" step="0.5" value="5.5" onchange="updateSimulation()">
+          </div>
+        </div>
+      </div>
+
+      <div class="canvas-frame">
+        <div class="canvas-inner"><canvas id="math-canvas"></canvas></div>
+      </div>
+
+      <div class="n-row">
+        <span class="lbl">Rectángulos</span>
+        <input id="n-slider" type="range" min="4" max="150" value="16" oninput="updateNSlider(this.value)">
+        <span class="n-badge" id="n-display-val">n = 16</span>
+      </div>
+
+      <div class="readouts">
+        <div class="readout a" onclick="openCalcModal('approx')">
+          <div class="rl"><i class="fa-solid fa-circle-question"></i>Aproximación</div>
+          <div class="rv" id="calc-riemann">0.00000</div>
+        </div>
+        <div class="readout b" onclick="openCalcModal('exact')">
+          <div class="rl"><i class="fa-solid fa-circle-question"></i>Área exacta</div>
+          <div class="rv" id="calc-exact">0.00000</div>
+        </div>
+        <div class="readout" onclick="openCalcModal('error')">
+          <div class="rl"><i class="fa-solid fa-circle-question"></i>Error</div>
+          <div class="rv" id="calc-error">0.00%</div>
+        </div>
+      </div>
+      <p style="text-align:center; font-size:10.5px; color:var(--brown-2); margin:10px 0 0; font-family:var(--mono);">
+        <i class="fa-solid fa-hand-pointer"></i> Toca cualquiera de las tres tarjetas para ver de dónde sale ese número.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ ESTACIONES ============ -->
+  <h2 class="section-title">Estaciones del Conocimiento</h2>
+  <div class="wavy-divider"></div>
+
+  <div class="stations-grid">
+    <div class="postcard" onclick="openStationModal(1)">
+      <div class="postcard-stamp" style="background:var(--teal-dark);">Estación I</div>
+      <div class="postcard-photo"><img src="images/riemann.png" alt="Riemann" onerror="handleImageFallback(this,'riemann')"></div>
+      <h3>Las Sumas de Riemann</h3>
+      <p>Dividir e iterar el área en intervalos finitos.</p>
+      <div class="who">B. Riemann · 1826–1866</div>
+    </div>
+
+    <div class="postcard" onclick="openStationModal(2)">
+      <div class="postcard-stamp" style="background:var(--terracotta);">Estación II</div>
+      <div class="postcard-photo"><img src="images/cauchy.png" alt="Cauchy" onerror="handleImageFallback(this,'cauchy')"></div>
+      <h3>Concepto de Integral Definida</h3>
+      <p>El límite infinitesimal cuando el ancho tiende a cero.</p>
+      <div class="who">A.-L. Cauchy · 1789–1857</div>
+    </div>
+
+    <div class="postcard" onclick="openStationModal(3)">
+      <div class="postcard-stamp" style="background:var(--mustard-dark);">Estación III</div>
+      <div class="postcard-photo"><img src="images/balanza.png" alt="Propiedades" onerror="handleImageFallback(this,'balanza')"></div>
+      <h3>Propiedades de la Integral</h3>
+      <p>Linealidad, aditividad, inversión y monotonía.</p>
+      <div class="who">Leyes algebraicas</div>
+    </div>
+
+    <div class="postcard" onclick="openStationModal(4)">
+      <div class="postcard-stamp" style="background:var(--brown-2);">Estación IV</div>
+      <div class="postcard-photo"><img src="images/newton_leibniz.png" alt="Newton y Leibniz" onerror="handleImageFallback(this,'newton')"></div>
+      <h3>Teorema Fundamental del Cálculo</h3>
+      <p>El puente entre la derivada y la integral.</p>
+      <div class="who">Newton &amp; Leibniz · s. XVII</div>
+    </div>
+  </div>
+
+  <!-- ============ REFERENCIAS ============ -->
+  <h2 class="section-title">Referencias</h2>
+  <div class="wavy-divider"></div>
+  <div class="index-card">
+    <div class="ref-item"><span class="num">01</span><span>Larson, R., &amp; Edwards, B. H. (2016). <em>Cálculo Tomo I</em> (10.ª ed.). Cengage Learning.</span></div>
+    <div class="ref-item"><span class="num">02</span><span>Stewart, J. (2018). <em>Cálculo de una variable: Trascendentes tempranas</em> (8.ª ed.). Cengage Learning.</span></div>
+    <div class="ref-item"><span class="num">03</span><span>Thomas, G. B., Weir, M. D., &amp; Hass, J. (2015). <em>Cálculo: Una variable</em> (13.ª ed.). Pearson Educación.</span></div>
+    <div class="ref-item"><span class="num">04</span><span>Spivak, M. (2012). <em>Cálculo Infinitesimal</em> (2.ª ed.). Editorial Reverté.</span></div>
+    <div class="ref-item"><span class="num">05</span><span>OpenStax. (2023). <em>Cálculo volumen 1</em> — 5.2 La integral definida. openstax.org</span></div>
+    <div class="ref-item"><span class="num">06</span><span>LibreTexts en Español. <em>5.3: Sumas de Riemann</em> (APEX Calculus). espanol.libretexts.org</span></div>
+  </div>
+
+  <footer class="retro-footer">
+  </footer>
+</div>
+
+<!-- ============ MODAL DE ESTACIONES ============ -->
+<div id="station-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeStationModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-head">
+      <div id="modal-icon-container" class="modal-icon"><i id="modal-header-icon" class="fa-solid"></i></div>
+      <div>
+        <div id="modal-header-sub" class="modal-sub"></div>
+        <h3 id="modal-header-title" class="modal-title"></h3>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="avatar-box">
+        <img id="modal-avatar-img-element" src="" alt="Avatar de la estación">
+        <div>
+          <div id="modal-avatar-name" class="avatar-name"></div>
+          <p id="modal-avatar-quote" class="avatar-quote"></p>
+        </div>
+      </div>
+      <div class="math-box">
+        <div id="modal-math-text"></div>
+      </div>
+      <div class="tip-box">
+        <i class="fa-solid fa-lightbulb"></i>
+        <p id="modal-graphical-tip"></p>
+      </div>
+    </div>
+    <div class="modal-footer-btn"><button onclick="closeStationModal()">Confirmar lectura</button></div>
+  </div>
+</div>
+
+<!-- ============ MODAL DE EXPLICACIÓN DE CÁLCULOS ============ -->
+<div id="calc-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeCalcModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-head">
+      <div id="calc-modal-icon-container" class="modal-icon"><i id="calc-modal-header-icon" class="fa-solid"></i></div>
+      <div>
+        <div id="calc-modal-header-sub" class="modal-sub"></div>
+        <h3 id="calc-modal-header-title" class="modal-title"></h3>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="math-box">
+        <div id="calc-modal-math-text"></div>
+      </div>
+      <div class="calc-live-box">
+        <span class="cl-label"><i class="fa-solid fa-bolt"></i> Con tus valores actuales</span>
+        <div id="calc-modal-live-text"></div>
+      </div>
+      <div class="tip-box">
+        <i class="fa-solid fa-lightbulb"></i>
+        <p id="calc-modal-tip"></p>
+      </div>
+    </div>
+    <div class="modal-footer-btn"><button onclick="closeCalcModal()">Entendido</button></div>
+  </div>
+</div>
+
+<!-- ============ WIDGET DE LA MAESTRA ============ -->
+<div class="teacher-widget">
+  <div class="teacher-bubble" id="teacher-bubble">
+    <div class="teacher-bubble-name" id="teacher-bubble-name">Sakbeibi</div>
+    <div class="teacher-bubble-text" id="teacher-bubble-text"></div>
+    <div class="teacher-bubble-next" onclick="nextTeacherTip()"><i class="fa-solid fa-rotate"></i> Otro tip</div>
+  </div>
+  <button class="teacher-avatar-btn" id="teacher-avatar-btn" onclick="toggleTeacherBubble()" title="Pregúntale a la maestra">
+    <img src="images/sak.png" alt="Maestra" onerror="this.style.display='none'; this.parentElement.innerHTML+='<i class=\'fa-solid fa-chalkboard-user\'></i>';">
+  </button>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="custom-toast" class="toast">
+  <i id="toast-icon" class="fa-solid fa-circle-info"></i>
+  <div><p id="toast-title" class="tt"></p><p id="toast-body" class="tb"></p></div>
+</div>
+
+<script>
+let currentN = 16, selectedFunc = 'parabola', sumType = 'left', limitA = 0.5, limitB = 5.5;
+let canvas, ctx, audioCtx = null, audioEnabled = true;
+let lastRiemannSum = 0, lastExactArea = 0, lastAbsErr = 0, lastErrPercent = 0, lastDx = 0;
+
+function toggleAudio(){
+  audioEnabled = !audioEnabled;
+  const btn = document.getElementById('btn-audio-state');
+  const lbl = document.getElementById('audio-lbl-text');
+  if(audioEnabled){ btn.classList.remove('off'); lbl.innerText = "Audio ON"; playChime(600,0.1,'sine'); }
+  else { btn.classList.add('off'); lbl.innerText = "Audio OFF"; }
+}
+function initAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+function playChime(frequency=500, duration=0.15, type='sine'){
+  if(!audioEnabled) return;
+  try{
+    initAudio();
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime+duration);
+  }catch(e){ console.log('Audio bloqueado', e); }
+}
+
+function f(x){
+  switch(selectedFunc){
+    case 'parabola': return -0.5*x*x + 3*x + 1;
+    case 'sinusoidal': return Math.sin(x) + 1.5;
+    case 'cubic': return 0.1*Math.pow(x,3) - 0.6*x*x + 1.2*x + 1;
+    default: return 0;
+  }
+}
+function getExactIntegral(a,b){
+  switch(selectedFunc){
+    case 'parabola': { const F=(x)=> -Math.pow(x,3)/6 + 1.5*x*x + x; return F(b)-F(a); }
+    case 'sinusoidal': { const F=(x)=> -Math.cos(x) + 1.5*x; return F(b)-F(a); }
+    case 'cubic': { const F=(x)=> 0.025*Math.pow(x,4) - 0.2*Math.pow(x,3) + 0.6*x*x + x; return F(b)-F(a); }
+    default: return 0;
+  }
+}
+function getAntiderivativeLabel(){
+  switch(selectedFunc){
+    case 'parabola': return "F(x) = −x³/6 + 1.5x² + x";
+    case 'sinusoidal': return "F(x) = −cos(x) + 1.5x";
+    case 'cubic': return "F(x) = 0.025x⁴ − 0.2x³ + 0.6x² + x";
+    default: return "F(x)";
+  }
+}
+function getFuncLabel(){
+  switch(selectedFunc){
+    case 'parabola': return "f(x) = −0.5x² + 3x + 1";
+    case 'sinusoidal': return "f(x) = sen(x) + 1.5";
+    case 'cubic': return "f(x) = 0.1x³ − 0.6x² + 1.2x + 1";
+    default: return "f(x)";
+  }
+}
+function getSumTypeLabel(){
+  if(sumType==='left') return "extremo izquierdo (cᵢ = xᵢ)";
+  if(sumType==='right') return "extremo derecho (cᵢ = xᵢ₊₁)";
+  return "punto medio (cᵢ = (xᵢ+xᵢ₊₁)/2)";
+}
+function computeRiemannSum(n,a,b,type){
+  const dx=(b-a)/n; let sum=0;
+  for(let i=0;i<n;i++){
+    let xEval;
+    if(type==='left') xEval = a+i*dx;
+    else if(type==='right') xEval = a+(i+1)*dx;
+    else xEval = a+(i+0.5)*dx;
+    sum += f(xEval)*dx;
+  }
+  return sum;
+}
+
+function initCanvas(){
+  canvas = document.getElementById('math-canvas');
+  ctx = canvas.getContext('2d');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+}
+function resizeCanvas(){
+  const container = canvas.parentElement;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = container.clientWidth*dpr;
+  canvas.height = container.clientHeight*dpr;
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  drawSimulation();
+}
+
+function computeYMax(xMin, xMax){
+  let maxVal = 0;
+  const steps = 120;
+  for(let i=0;i<=steps;i++){
+    const x = xMin + (i/steps)*(xMax-xMin);
+    const v = f(x);
+    if(v>maxVal) maxVal = v;
+  }
+  if(maxVal<=0) maxVal = 1;
+  return maxVal*1.18; // 18% de margen arriba para que la curva no toque el borde
+}
+
+function drawSimulation(){
+  if(!canvas||!ctx) return;
+  const dpr = window.devicePixelRatio || 1;
+  const width = canvas.width/dpr, height = canvas.height/dpr;
+  ctx.clearRect(0,0,width,height);
+
+  const margin = {top:14, right:14, bottom:22, left:34};
+  const plotWidth = width-margin.left-margin.right;
+  const plotHeight = height-margin.top-margin.bottom;
+
+  const xMin = Math.max(0, limitA-1), xMax = limitB+1;
+  let yMax = computeYMax(xMin, xMax);
+
+  function toX(x){ return margin.left + ((x-xMin)/(xMax-xMin))*plotWidth; }
+  function toY(y){ return margin.top + plotHeight - (y/yMax)*plotHeight; }
+
+  ctx.strokeStyle = '#ece0bd'; ctx.lineWidth = 0.6;
+  for(let x=Math.ceil(xMin); x<=xMax; x+=1){
+    ctx.beginPath(); ctx.moveTo(toX(x), margin.top); ctx.lineTo(toX(x), margin.top+plotHeight); ctx.stroke();
+    ctx.fillStyle = '#8a5a34'; ctx.font = '8px monospace'; ctx.textAlign='center';
+    ctx.fillText(x, toX(x), margin.top+plotHeight+12);
+  }
+  for(let y=0;y<=yMax;y+=1){
+    ctx.beginPath(); ctx.moveTo(margin.left, toY(y)); ctx.lineTo(margin.left+plotWidth, toY(y)); ctx.stroke();
+    ctx.fillStyle = '#8a5a34'; ctx.font = '8px monospace'; ctx.textAlign='right';
+    ctx.fillText(y.toFixed(1), margin.left-6, toY(y)+3);
+  }
+
+  // area exacta (tenue, teal)
+  ctx.fillStyle = 'rgba(63,157,146,0.14)';
+  ctx.beginPath(); ctx.moveTo(toX(limitA), toY(0));
+  const steps=150;
+  for(let i=0;i<=steps;i++){ const x=limitA+(i/steps)*(limitB-limitA); ctx.lineTo(toX(x), toY(f(x))); }
+  ctx.lineTo(toX(limitB), toY(0)); ctx.closePath(); ctx.fill();
+
+  // rectangulos riemann (mostaza)
+  const dx=(limitB-limitA)/currentN;
+  ctx.lineWidth=1;
+  for(let i=0;i<currentN;i++){
+    let xL=limitA+i*dx, xR=xL+dx, xEval;
+    if(sumType==='left') xEval=xL; else if(sumType==='right') xEval=xR; else xEval=xL+dx/2;
+    const yVal=f(xEval);
+    const rx=toX(xL), ry=toY(Math.max(yVal,0));
+    const rWidth=toX(xR)-toX(xL), rHeight=Math.abs(toY(0)-toY(yVal));
+    ctx.fillStyle='rgba(227,167,46,0.55)';
+    ctx.fillRect(rx, toY(0)-rHeight, rWidth, rHeight);
+    ctx.strokeStyle='#c98a1f';
+    ctx.strokeRect(rx, toY(0)-rHeight, rWidth, rHeight);
+  }
+
+  // curva f(x) en cafe oscuro
+  ctx.strokeStyle = '#3a2617'; ctx.lineWidth=2.4; ctx.beginPath();
+  const totalSteps=200;
+  for(let i=0;i<=totalSteps;i++){
+    const x=xMin+(i/totalSteps)*(xMax-xMin), y=f(x);
+    if(i===0) ctx.moveTo(toX(x), toY(y)); else ctx.lineTo(toX(x), toY(y));
+  }
+  ctx.stroke();
+
+  // ejes
+  ctx.strokeStyle = '#6b4226'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(margin.left, toY(0)); ctx.lineTo(margin.left+plotWidth, toY(0)); ctx.stroke();
+  ctx.beginPath();
+  const zeroX = toX(0)>=margin.left ? toX(0) : margin.left;
+  ctx.moveTo(zeroX, margin.top); ctx.lineTo(zeroX, margin.top+plotHeight); ctx.stroke();
+}
+
+function updateNSlider(val){
+  currentN = parseInt(val);
+  document.getElementById('n-display-val').innerText = `n = ${currentN}`;
+  playChime(320+currentN*2, 0.035);
+  updateSimulation();
+}
+
+function updateSimulation(){
+  selectedFunc = document.getElementById('func-select').value;
+  sumType = document.getElementById('sum-type-select').value;
+  limitA = parseFloat(document.getElementById('limit-a').value) || 0.5;
+  limitB = parseFloat(document.getElementById('limit-b').value) || 5.5;
+
+  if(limitA >= limitB){
+    limitB = limitA+1;
+    document.getElementById('limit-b').value = limitB;
+    showToast("Intervalo ajustado", "El límite b debe ser mayor que a.", "warning");
+  }
+
+  const riemannSum = computeRiemannSum(currentN, limitA, limitB, sumType);
+  const exactArea = getExactIntegral(limitA, limitB);
+  const absErr = Math.abs(exactArea-riemannSum);
+  const errPercent = exactArea!==0 ? (absErr/exactArea)*100 : 0;
+
+  lastRiemannSum = riemannSum; lastExactArea = exactArea; lastAbsErr = absErr; lastErrPercent = errPercent;
+  lastDx = (limitB-limitA)/currentN;
+
+  document.getElementById('calc-riemann').innerText = riemannSum.toFixed(5);
+  document.getElementById('calc-exact').innerText = exactArea.toFixed(5);
+  document.getElementById('calc-error').innerText = errPercent.toFixed(3)+'%';
+
+  drawSimulation();
+
+  // si el modal de cálculo está abierto, refresca sus números en vivo
+  if(document.getElementById('calc-modal').classList.contains('open') && currentCalcType){
+    fillCalcLiveText(currentCalcType);
+  }
+}
+
+function handleImageFallback(imgElement, type){
+  imgElement.style.display='none';
+  const parent = imgElement.parentElement;
+  let svgHTML="";
+  const stroke = "#3a2617";
+  if(type==='riemann') svgHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.6" style="width:60%;height:60%"><path d="M3 3v18h18M6 21V12h4v9M10 21V8h4v13M14 21V15h4v6"/></svg>`;
+  else if(type==='cauchy') svgHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.6" style="width:60%;height:60%"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>`;
+  else if(type==='balanza') svgHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.6" style="width:60%;height:60%"><path d="M12 3v17M19 10l-4-3-4 3M19 10H5M5 10l4-3 4 3M6 20h12"/></svg>`;
+  else svgHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.6" style="width:60%;height:60%"><path d="M4 19V5h16v14M8 12h8"/></svg>`;
+  parent.innerHTML += svgHTML;
+}
+
+const stationsData = {
+  1: {
+    title: "Estación I: Las Sumas de Riemann", sub: "Bernhard Riemann",
+    icon: "fa-cubes-stacked", accent: "#2c766d",
+    avatarName: "Bernhard Riemann (1826–1866)", avatarImgSrc: "images/riemann.png", fallbackKey: "riemann",
+    avatarQuote: "Para hallar el área bajo mi curva, partimos el intervalo en rectángulos finitos; cuanto más estrechos, más cerca del área real.",
+    graphicalTip: "Como referencia visual, piensa en rectángulos apilándose de izquierda a derecha bajo la curva — así se construye una suma izquierda, derecha o de punto medio.",
+    mathHTML: `
+      <p>Para estimar el área bajo una función continua <span class="katex-raw">f(x) \\ge 0</span> en <span class="katex-raw">[a,b]</span>, se divide el intervalo en <span class="katex-raw">n</span> subintervalos:</p>
+      <div class="formula-line"><span class="katex-raw font-sans">P = \\{x_0, x_1, \\dots, x_n\\}, \\quad \\Delta x = \\frac{b-a}{n}</span></div>
+      <p>En cada subintervalo se elige un punto muestra <span class="katex-raw">c_i</span> y se evalúa <span class="katex-raw">f(c_i)</span> como altura del rectángulo.</p>
+      <div class="formula-line"><span class="katex-raw font-sans">S_n = \\sum_{i=1}^{n} f(c_i)\\,\\Delta x</span></div>
+      <p style="font-size:11.5px; color:#8a5a34; font-style:italic;">Según dónde se elija c_i (izquierda, derecha o punto medio), la suma cambia ligeramente, pero todas convergen al mismo valor cuando n → ∞.</p>
+    `
+  },
+  2: {
+    title: "Estación II: Concepto de Integral Definida", sub: "Augustin-Louis Cauchy",
+    icon: "fa-infinity", accent: "#c1502e",
+    avatarName: "Augustin-Louis Cauchy (1789–1857)", avatarImgSrc: "images/cauchy.png", fallbackKey: "cauchy",
+    avatarQuote: "Cuando el ancho de las particiones tiende a cero, la suma de rectángulos se convierte en una integral.",
+    graphicalTip: "Ilustra el área ya consolidada (sin rectángulos) como una región sólida bajo la curva — es el resultado final del proceso de aproximación.",
+    mathHTML: `
+      <p>La <b>integral definida</b> es el límite de las sumas de Riemann cuando el ancho de la partición tiende a cero:</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_{a}^{b} f(x)\\,dx = \\lim_{n \\to \\infty} \\sum_{i=1}^{n} f(c_i)\\,\\Delta x</span></div>
+      <p>Cuando este límite existe, f es <b>integrable</b> en [a,b]. Si f(x) ≥ 0, la integral es el área bajo la curva; si f cambia de signo, es un área neta con signo.</p>
+      <ul style="padding-left:18px; font-size:12px; color:#3a2617;">
+        <li><span class="katex-raw">\\int</span>: notación creada por Leibniz (una "S" de "summa").</li>
+        <li><span class="katex-raw font-sans">a, b</span>: límites de integración.</li>
+        <li><span class="katex-raw">dx</span>: diferencial, el ancho infinitesimal.</li>
+      </ul>
+    `
+  },
+  3: {
+    title: "Estación III: Propiedades de la Integral Definida", sub: "Reglas algebraicas",
+    icon: "fa-scale-balanced", accent: "#c98a1f",
+    avatarName: "Propiedades fundamentales", avatarImgSrc: "images/balanza.png", fallbackKey: "balanza",
+    avatarQuote: "La integral obedece reglas de simetría: son el cimiento de cualquier cálculo más complejo.",
+    graphicalTip: "Una balanza es la imagen perfecta para 'comparación' y 'aditividad' — dos platillos que se equilibran o se dividen en partes.",
+    mathHTML: `
+      <p><b>Propiedad de Límites Iguales:</b> si los límites de integración coinciden, no hay "ancho" que recorrer, así que el área es cero.</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^a f(x)\\,dx = 0</span></div>
+      <p><b>Propiedad de Intercambio de Límites:</b> invertir el orden de los límites cambia el signo de la integral.</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^b f(x)\\,dx = -\\int_b^a f(x)\\,dx</span></div>
+      <p><b>Propiedad de Límites Simétricos:</b> en un intervalo simétrico [−a, a], el resultado depende de si f es par o impar.</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_{-a}^{a} f(x)\\,dx = 2\\int_0^a f(x)\\,dx \\quad \\text{si } f \\text{ es par}</span></div>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_{-a}^{a} f(x)\\,dx = 0 \\quad \\text{si } f \\text{ es impar}</span></div>
+      <p><b>Propiedad de Aditividad del Intervalo:</b> el área total se puede partir en tramos consecutivos y sumarlos.</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^b f(x)\\,dx = \\int_a^c f(x)\\,dx + \\int_c^b f(x)\\,dx</span></div>
+      <p><b>Propiedad de Linealidad (Suma y Multiplicación):</b> la integral se reparte entre sumas/restas de funciones y saca constantes multiplicativas.</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^b [f(x) \\pm g(x)]\\,dx = \\int_a^b f(x)\\,dx \\pm \\int_a^b g(x)\\,dx</span></div>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^b k\\,f(x)\\,dx = k\\int_a^b f(x)\\,dx</span></div>
+    `
+  },
+  4: {
+    title: "Estación IV: Teorema Fundamental del Cálculo", sub: "Newton & Leibniz",
+    icon: "fa-bridge", accent: "#8a5a34",
+    avatarName: "Newton & Leibniz (s. XVII)", avatarImgSrc: "images/newton_leibniz.png", fallbackKey: "newton",
+    avatarQuote: "El cambio instantáneo (la derivada) y la acumulación de área (la integral) son operaciones inversas.",
+    graphicalTip: "Piensa en un puente de doble vía: un sentido rotulado 'Integración' y el inverso 'Derivación', conectando f(x) con F(x).",
+    mathHTML: `
+      <p><b>Parte 1 — Relación inversa:</b></p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\frac{d}{dx}\\left[\\int_a^x f(t)dt\\right] = f(x)</span></div>
+      <p style="font-size:12px;">La función que acumula área es derivable, y su derivada es la función original.</p>
+      <p><b>Parte 2 — Regla de Barrow:</b></p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^b f(x)dx = F(b)-F(a), \\quad F'(x)=f(x)</span></div>
+      <p style="font-size:12px;">Permite calcular la integral con una antiderivada, sin recurrir a límites de sumas de Riemann.</p>
+    `
+  }
+};
+
+function openStationModal(id){
+  playChime(490,0.22,'triangle');
+  const d = stationsData[id]; if(!d) return;
+
+  document.getElementById('modal-header-title').innerText = d.title;
+  document.getElementById('modal-header-sub').innerText = d.sub;
+  document.getElementById('modal-header-icon').className = `fa-solid ${d.icon}`;
+  document.getElementById('modal-icon-container').style.background = d.accent;
+
+  const img = document.getElementById('modal-avatar-img-element');
+  img.style.display='block'; img.src = d.avatarImgSrc;
+  img.onerror = function(){ handleImageFallback(this, d.fallbackKey); };
+
+  document.getElementById('modal-avatar-name').innerText = d.avatarName;
+  document.getElementById('modal-avatar-name').style.color = d.accent;
+  document.getElementById('modal-avatar-quote').innerText = `"${d.avatarQuote}"`;
+  document.getElementById('modal-math-text').innerHTML = d.mathHTML;
+  document.getElementById('modal-graphical-tip').innerText = d.graphicalTip;
+
+  document.getElementById('station-modal').classList.add('open');
+
+  renderKatexIn('modal-math-text');
+}
+function closeStationModal(){
+  playChime(280,0.12,'sine');
+  document.getElementById('station-modal').classList.remove('open');
+}
+
+function renderKatexIn(elementId){
+  const container = document.getElementById(elementId);
+  if(!container) return;
+  const spans = container.querySelectorAll('.katex-raw');
+  spans.forEach(span=>{
+    const tex = span.textContent;
+    try{
+      katex.render(tex, span, { throwOnError:false, displayMode:false });
+    }catch(e){ console.warn("KaTeX no pudo renderizar:", tex, e); }
+  });
+}
+
+/* ---------------- EXPLICACIÓN DE LOS 3 RESULTADOS ---------------- */
+let currentCalcType = null;
+
+const calcData = {
+  approx: {
+    title: "¿De dónde sale la Aproximación?", sub: "Suma de Riemann",
+    icon: "fa-shapes", accent: "#2c766d",
+    mathHTML: `
+      <p>La tarjeta "Aproximación" es el valor de la <b>suma de Riemann</b> con el número de rectángulos (n) que elegiste en el control deslizante:</p>
+      <div class="formula-line"><span class="katex-raw font-sans">S_n = \\sum_{i=1}^{n} f(c_i)\\,\\Delta x, \\qquad \\Delta x = \\frac{b-a}{n}</span></div>
+      <p>Cada rectángulo tiene el mismo ancho <span class="katex-raw">\\Delta x</span>, pero su altura es <span class="katex-raw">f(c_i)</span>, donde <span class="katex-raw">c_i</span> depende del tipo de punto muestra elegido (izquierdo, derecho o punto medio). El área del rectángulo <span class="katex-raw">i</span> es base × altura, y sumamos las áreas de los n rectángulos.</p>
+    `,
+    tip: "Entre más rectángulos (n más grande) uses, más delgados son, y la suma se parece más al área real bajo la curva."
+  },
+  exact: {
+    title: "¿De dónde sale el Área exacta?", sub: "Teorema Fundamental del Cálculo",
+    icon: "fa-bridge", accent: "#c1502e",
+    mathHTML: `
+      <p>La tarjeta "Área exacta" no usa rectángulos: se calcula con la <b>integral definida</b>, aplicando la Regla de Barrow (parte 2 del Teorema Fundamental):</p>
+      <div class="formula-line"><span class="katex-raw font-sans">\\int_a^b f(x)\\,dx = F(b)-F(a)</span></div>
+      <p>donde F(x) es una <b>antiderivada</b> de f(x), es decir, F'(x) = f(x). Se evalúa F en el límite superior b, se evalúa F en el límite inferior a, y se resta.</p>
+    `,
+    tip: "Este valor es el límite al que se acercaría la Aproximación si n → ∞. Es el resultado 'perfecto', sin error de rectángulos."
+  },
+  error: {
+    title: "¿De dónde sale el Error?", sub: "Error relativo porcentual",
+    icon: "fa-magnifying-glass-chart", accent: "#c98a1f",
+    mathHTML: `
+      <p>El error compara qué tan lejos está tu Aproximación (S_n) del Área exacta. Primero se calcula el <b>error absoluto</b>, y luego se expresa como porcentaje del área exacta:</p>
+      <div class="formula-line"><span class="katex-raw font-sans">E_{abs} = |A_{exacta} - S_n|</span></div>
+      <div class="formula-line"><span class="katex-raw font-sans">E_{\\%} = \\frac{E_{abs}}{A_{exacta}} \\times 100</span></div>
+    `,
+    tip: "Si el error % baja al mover el slider de n hacia la derecha, estás comprobando en vivo que las sumas de Riemann convergen a la integral."
+  }
+};
+
+function fillCalcLiveText(type){
+  const dx = lastDx;
+  let liveHTML = "";
+  if(type==='approx'){
+    liveHTML = `Función: ${getFuncLabel()}<br>
+      Intervalo: [${limitA}, ${limitB}] · n = ${currentN} · Δx = (${limitB} − ${limitA}) / ${currentN} = ${dx.toFixed(5)}<br>
+      Punto muestra: ${getSumTypeLabel()}<br>
+      S_n = Σ f(cᵢ) · Δx = <b>${lastRiemannSum.toFixed(5)}</b>`;
+  } else if(type==='exact'){
+    liveHTML = `Función: ${getFuncLabel()}<br>
+      Antiderivada: ${getAntiderivativeLabel()}<br>
+      ∫ f(x)dx de ${limitA} a ${limitB} = F(${limitB}) − F(${limitA}) = <b>${lastExactArea.toFixed(5)}</b>`;
+  } else if(type==='error'){
+    liveHTML = `Área exacta = ${lastExactArea.toFixed(5)} · Aproximación (n=${currentN}) = ${lastRiemannSum.toFixed(5)}<br>
+      E_abs = |${lastExactArea.toFixed(5)} − ${lastRiemannSum.toFixed(5)}| = ${lastAbsErr.toFixed(5)}<br>
+      E_% = (${lastAbsErr.toFixed(5)} / ${lastExactArea.toFixed(5)}) × 100 = <b>${lastErrPercent.toFixed(3)}%</b>`;
+  }
+  document.getElementById('calc-modal-live-text').innerHTML = liveHTML;
+}
+
+function openCalcModal(type){
+  playChime(540,0.2,'triangle');
+  currentCalcType = type;
+  const d = calcData[type]; if(!d) return;
+
+  document.getElementById('calc-modal-header-title').innerText = d.title;
+  document.getElementById('calc-modal-header-sub').innerText = d.sub;
+  document.getElementById('calc-modal-header-icon').className = `fa-solid ${d.icon}`;
+  document.getElementById('calc-modal-icon-container').style.background = d.accent;
+  document.getElementById('calc-modal-math-text').innerHTML = d.mathHTML;
+  document.getElementById('calc-modal-tip').innerText = d.tip;
+
+  fillCalcLiveText(type);
+
+  document.getElementById('calc-modal').classList.add('open');
+  renderKatexIn('calc-modal-math-text');
+}
+function closeCalcModal(){
+  playChime(280,0.12,'sine');
+  document.getElementById('calc-modal').classList.remove('open');
+  currentCalcType = null;
+}
+
+/* ---------------- WIDGET DE LA MAESTRA ---------------- */
+let teacherOpen = false;
+function getTeacherTips(){
+  return [
+    `Recuerda: entre más rectángulos uses (n grande), tu Aproximación se acerca más al Área exacta. ¡Muévele al slider y compruébalo!`,
+    `Con n = ${currentN} tu error actual es de ${lastErrPercent.toFixed(2)}%. Prueba cambiar el punto muestra (izquierdo, derecho, punto medio) y observa cómo cambia.`,
+    `Toca las tarjetas de Aproximación, Área exacta y Error para ver la fórmula exacta y el cálculo paso a paso con tus valores.`,
+    `El signo del área importa: si f(x) es negativa en parte del intervalo, esa zona resta al total en vez de sumar.`,
+    `Visita las 4 estaciones (postales) para repasar la teoría completa antes de tu evaluación.`
+  ];
+}
+let teacherTipIndex = 0;
+function toggleTeacherBubble(){
+  const bubble = document.getElementById('teacher-bubble');
+  teacherOpen = !teacherOpen;
+  if(teacherOpen){
+    playChime(560,0.15,'triangle');
+    bubble.classList.add('open');
+    teacherTipIndex = 0;
+    document.getElementById('teacher-bubble-text').innerText = getTeacherTips()[teacherTipIndex];
+    requestAnimationFrame(()=>bubble.classList.add('show'));
+  } else {
+    playChime(260,0.1,'sine');
+    bubble.classList.remove('show');
+    setTimeout(()=>bubble.classList.remove('open'), 200);
+  }
+}
+function nextTeacherTip(){
+  playChime(480,0.08,'sine');
+  const tips = getTeacherTips();
+  teacherTipIndex = (teacherTipIndex+1) % tips.length;
+  document.getElementById('teacher-bubble-text').innerText = tips[teacherTipIndex];
+}
+
+function showToast(title, body, type="info"){
+  const toast = document.getElementById('custom-toast');
+  document.getElementById('toast-title').innerText = title;
+  document.getElementById('toast-body').innerText = body;
+  const icon = document.getElementById('toast-icon');
+  if(type==="warning") icon.className = "fa-solid fa-triangle-exclamation";
+  else if(type==="error") icon.className = "fa-solid fa-circle-xmark";
+  else icon.className = "fa-solid fa-file-circle-check";
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 4200);
+}
+
+window.onload = function(){
+  initCanvas();
+  updateSimulation();
+  setTimeout(()=>{
+    showToast("¡Bienvenido, ingeniero!", "Ajusta el número de rectángulos, toca las tarjetas de resultados o pregúntale a tu maestra.", "info");
+  }, 900);
+};
+</script>
+</body>
+</html>
